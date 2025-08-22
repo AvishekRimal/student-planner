@@ -1,9 +1,11 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/redux/hooks/useAuth";
-import { useForm, SubmitHandler } from "react-hook-form";
+import { useForm, SubmitHandler, Controller } from "react-hook-form"; // Import Controller
+import { format } from "date-fns"; // Package for formatting dates
 
 import { Button } from "@/components/ui/button";
 import {
@@ -18,22 +20,19 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { PlusCircle } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { PlusCircle, CalendarIcon } from "lucide-react";
 
-// Define the shape of our form data
+// --- 1. UPDATE THE FORM TYPE ---
+// Add 'deadline' to our form data shape. It's optional.
 type FormInputs = {
   title: string;
   description: string;
   category: string;
   priority: 'High' | 'Medium' | 'Low';
+  deadline?: Date; // The form will handle this as a Date object
 };
 
 export function AddTaskModal() {
@@ -42,8 +41,13 @@ export function AddTaskModal() {
   const router = useRouter();
   const { token } = useAuth();
   
-  // React Hook Form for easier form management
-  const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm<FormInputs>();
+  // Update useForm to include the Controller
+  const { control, register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm<FormInputs>({
+    defaultValues: {
+      priority: 'Medium',
+      category: 'General',
+    }
+  });
 
   const onSubmit: SubmitHandler<FormInputs> = async (data) => {
     setApiError(null);
@@ -53,13 +57,21 @@ export function AddTaskModal() {
     }
 
     try {
+      // --- 2. UPDATE THE PAYLOAD ---
+      // If a deadline exists in the form data, convert it to a proper ISO string for the backend.
+      // Otherwise, don't include it in the payload.
+      const payload = {
+        ...data,
+        deadline: data.deadline ? data.deadline.toISOString() : undefined,
+      };
+
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/tasks`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify(data),
+        body: JSON.stringify(payload),
       });
 
       if (!res.ok) {
@@ -67,10 +79,9 @@ export function AddTaskModal() {
         throw new Error(errorData.message || "Failed to create task");
       }
 
-      // If successful:
-      reset(); // Clear the form
-      setIsOpen(false); // Close the modal
-      router.refresh(); // Crucial: This tells Next.js to re-fetch the server data for the page
+      reset();
+      setIsOpen(false);
+      router.refresh();
 
     } catch (err: any) {
       setApiError(err.message);
@@ -89,11 +100,12 @@ export function AddTaskModal() {
         <DialogHeader>
           <DialogTitle>Add a New Task</DialogTitle>
           <DialogDescription>
-            Fill in the details for your new task below. Click save when you're done.
+            Fill in the details for your new task below. Click save when you&#39;re done.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="grid gap-4 py-4">
+            {/* Title, Description, Category, Priority fields are unchanged */}
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="title" className="text-right">Title</Label>
               <Input id="title" {...register("title", { required: "Title is required" })} className="col-span-3" />
@@ -112,19 +124,53 @@ export function AddTaskModal() {
             
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="priority" className="text-right">Priority</Label>
-              {/* Note: React Hook Form requires a Controller for custom components like Select */}
-              {/* For simplicity, we'll use a standard HTML select for now. */}
               <select id="priority" {...register("priority")} className="col-span-3 border rounded p-2 bg-background">
                 <option value="Medium">Medium</option>
                 <option value="High">High</option>
                 <option value="Low">Low</option>
               </select>
             </div>
+            
+            {/* --- 3. ADD THE NEW DEADLINE FIELD UI --- */}
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="deadline" className="text-right">Deadline</Label>
+              {/*
+                Controller is a wrapper from react-hook-form used for custom components
+                that don't have a standard 'register'.
+              */}
+              <Controller
+                control={control}
+                name="deadline"
+                render={({ field }) => (
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant={"outline"}
+                        className="col-span-3 justify-start text-left font-normal"
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {/* If a date is selected, format it. Otherwise, show placeholder text. */}
+                        {field.value ? format(field.value, "PPP") : <span>Pick a date</span>}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0">
+                      <Calendar
+                        mode="single"
+                        selected={field.value}
+                        onSelect={field.onChange} // This updates the form's state
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
+                )}
+              />
+            </div>
+
           </div>
           {apiError && <p className="text-sm text-destructive">{apiError}</p>}
           <DialogFooter>
             <DialogClose asChild>
-              <Button type="button" variant="secondary">Cancel</Button>
+              <Button type="button" variant="secondary" onClick={() => reset()}>Cancel</Button>
             </DialogClose>
             <Button type="submit" disabled={isSubmitting}>
               {isSubmitting ? "Saving..." : "Save Task"}
