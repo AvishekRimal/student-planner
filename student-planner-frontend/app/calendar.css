@@ -1,0 +1,64 @@
+/* Import the library's base CSS first */
+@import 'react-big-calendar/lib/css/react-big-calendar.css';
+
+/* Override variables and styles to match Shadcn UI */
+.rbc-calendar {
+  border: none;
+  font-family: inherit;
+}
+
+/* Toolbar (we hide the default one since we built our own) */
+.rbc-toolbar {
+  display: none;
+}
+
+/* Header row (Sunday, Monday, etc.) */
+.rbc-header {
+  border-bottom: 1px solid hsl(var(--border));
+  padding: 0.75rem 0;
+  text-transform: capitalize;
+  font-weight: 500;
+  color: hsl(var(--foreground));
+}
+
+/* Main calendar grid lines */
+.rbc-month-view, .rbc-time-view {
+  border: 1px solid hsl(var(--border));
+  border-radius: var(--radius);
+}
+
+.rbc-time-header, .rbc-time-content, .rbc-month-row, .rbc-day-bg {
+  border-color: hsl(var(--border));
+}
+
+/* Date cells */
+.rbc-date-cell {
+  color: hsl(var(--muted-foreground));
+  padding: 4px;
+}
+
+.rbc-date-cell.rbc-now {
+  font-weight: 600;
+}
+.rbc-day-bg.rbc-today {
+  background-color: hsl(var(--accent));
+}
+
+/* Events */
+.rbc-event {
+  background-color: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  border: none;
+  border-radius: var(--radius);
+  padding: 4px 8px;
+  font-size: 0.875rem;
+}
+.rbc-event:focus {
+  outline: none;
+}
+
+/* "Show More" link */
+.rbc-show-more {
+  color: hsl(var(--primary));
+  background-color: transparent;
+}
