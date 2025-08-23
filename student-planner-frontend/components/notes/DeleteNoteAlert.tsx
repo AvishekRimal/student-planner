@@ -1,57 +1,31 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
-
-import { useRouter } from 'next/navigation';
 import { useAuth } from '@/redux/hooks/useAuth';
-// --- THIS IS THE LINE TO FIX ---
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger, // <-- ADD THIS TO THE IMPORT LIST
-} from "@/components/ui/alert-dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { toast } from "sonner";
 
-interface DeleteNoteAlertProps {
-  noteId: string;
-  children: React.ReactNode;
-}
+interface DeleteNoteAlertProps { noteId: string; children: React.ReactNode; onNoteDeleted: () => void; }
 
-export function DeleteNoteAlert({ noteId, children }: DeleteNoteAlertProps) {
-  const router = useRouter();
+export function DeleteNoteAlert({ noteId, children, onNoteDeleted }: DeleteNoteAlertProps) {
   const { token } = useAuth();
-
   const handleDelete = async () => {
-    if (!token) return;
+    if (!token) { toast.error("Not authenticated"); return; }
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/notes/${noteId}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` },
       });
       if (!res.ok) throw new Error('Failed to delete the note.');
-      router.refresh();
-    } catch (err) {
-      console.error(err);
-    }
+      toast.success("Note deleted successfully!");
+      onNoteDeleted(); // <-- Call the callback to refetch
+    } catch (err: any) { toast.error(err.message); }
   };
-
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>{children}</AlertDialogTrigger>
       <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-          <AlertDialogDescription>
-            This will permanently delete this note.
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction onClick={handleDelete}>Continue</AlertDialogAction>
-        </AlertDialogFooter>
+        <AlertDialogHeader><AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle><AlertDialogDescription>This action cannot be undone.</AlertDialogDescription></AlertDialogHeader>
+        <AlertDialogFooter><AlertDialogCancel>Cancel</AlertDialogCancel><AlertDialogAction onClick={handleDelete}>Continue</AlertDialogAction></AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
   );

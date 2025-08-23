@@ -16,16 +16,33 @@ const noteRoutes = require('./routes/v1/noteRoutes');
 const { errorHandler } = require('./middleware/errorMiddleware');
 
 // Import the consolidated background job initializer
-const { initializeJobs } = require('./jobs/taskScheduler'); // <-- UPDATED LINE
+const { initializeJobs } = require('./jobs/taskScheduler');
 
 
 // --- CONFIGURATION ---
-dotenv.config(); // Loads environment variables from the .env file
+dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
 
 // --- SECURITY & CORE MIDDLEWARE ---
+
+// --- THIS IS THE FIX: A Robust CORS Configuration ---
+// Define the options for CORS
+const corsOptions = {
+  // This must be the origin of your frontend application
+  origin: 'http://localhost:3000',
+  // Specify which methods are allowed
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+  // This is essential for preflight requests (sent before PUT/DELETE) to succeed
+  credentials: true,
+  // Some legacy browsers (IE11, various SmartTVs) choke on 204
+  optionsSuccessStatus: 204
+};
+// Use the cors middleware with our new options. This MUST come before your routes.
+app.use(cors(corsOptions));
+
+
 // Set various security-related HTTP headers
 app.use(helmet());
 
@@ -41,9 +58,6 @@ app.use('/api', limiter); // Apply the limiter only to API routes
 
 // Allow the app to parse JSON from the request body
 app.use(express.json());
-
-// Enable Cross-Origin Resource Sharing for all origins
-app.use(cors());
 
 
 // --- DATABASE CONNECTION ---
@@ -71,7 +85,7 @@ app.get('/', (req, res) => {
 app.use((req, res, next) => {
   const error = new Error(`Not Found - ${req.originalUrl}`);
   res.status(404);
-  next(error); // Pass the error to the next middleware (our error handler)
+  next(error);
 });
 
 // This is the final middleware. It catches all errors passed by next()
@@ -83,5 +97,5 @@ app.listen(PORT, () => {
   console.log(`Server is running in ${process.env.NODE_ENV} mode on port ${PORT}`);
 
   // Start all scheduled jobs once the server is successfully running
-  initializeJobs(); // <-- UPDATED LINE
+  initializeJobs();
 });

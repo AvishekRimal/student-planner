@@ -32,7 +32,6 @@ async function getStats(token: string) {
   } catch (error) { console.error(error); return null; }
 }
 
-
 // The main page component - a Server Component
 export default async function DashboardPage() {
   const cookieStore = await cookies();
