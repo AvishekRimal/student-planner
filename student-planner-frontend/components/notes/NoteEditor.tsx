@@ -1,20 +1,24 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useEffect } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
-import { Note } from './NoteTable'; // Reuse our Note type
+import { Note } from './NoteTable';
 import { Button } from '@/components/ui/button';
 import { Bold, Italic, Strikethrough, List, ListOrdered } from 'lucide-react';
 import { useAuth } from '@/redux/hooks/useAuth';
 import { useRouter } from 'next/navigation';
+import { toast } from "sonner";
 
+// --- THIS IS THE COMPONENT TO FIX ---
 // The MenuBar is a small helper component for the editor's toolbar.
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const MenuBar = ({ editor }: { editor: any }) => {
+const MenuBar = ({ editor }: { editor: any | null }) => {
   if (!editor) {
     return null;
   }
+  
+  // It MUST return JSX
   return (
     <div className="flex items-center gap-1 p-2 border rounded-md">
       <Button 
@@ -22,6 +26,7 @@ const MenuBar = ({ editor }: { editor: any }) => {
         variant={editor.isActive('bold') ? 'secondary' : 'ghost'} 
         size="sm" 
         onClick={() => editor.chain().focus().toggleBold().run()}
+        disabled={!editor.can().chain().focus().toggleBold().run()}
       >
         <Bold className="h-4 w-4" />
       </Button>
@@ -30,6 +35,7 @@ const MenuBar = ({ editor }: { editor: any }) => {
         variant={editor.isActive('italic') ? 'secondary' : 'ghost'} 
         size="sm" 
         onClick={() => editor.chain().focus().toggleItalic().run()}
+        disabled={!editor.can().chain().focus().toggleItalic().run()}
       >
         <Italic className="h-4 w-4" />
       </Button>
@@ -38,6 +44,7 @@ const MenuBar = ({ editor }: { editor: any }) => {
         variant={editor.isActive('strike') ? 'secondary' : 'ghost'} 
         size="sm" 
         onClick={() => editor.chain().focus().toggleStrike().run()}
+        disabled={!editor.can().chain().focus().toggleStrike().run()}
       >
         <Strikethrough className="h-4 w-4" />
       </Button>
@@ -61,6 +68,7 @@ const MenuBar = ({ editor }: { editor: any }) => {
   );
 };
 
+
 // The main editor component.
 export function NoteEditor({ note }: { note: Note }) {
   const router = useRouter();
@@ -68,12 +76,8 @@ export function NoteEditor({ note }: { note: Note }) {
   
   const editor = useEditor({
     extensions: [StarterKit],
-    // The initial content to display
     content: note.content,
-    // This is the crucial fix for the SSR hydration error.
     immediatelyRender: false,
-    
-    // Add Tailwind classes to the editor area itself
     editorProps: {
       attributes: {
         class: 'prose dark:prose-invert min-h-[400px] max-w-none w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 p-4',
@@ -81,42 +85,33 @@ export function NoteEditor({ note }: { note: Note }) {
     },
   });
 
-  // This effect is necessary because we set immediatelyRender to false.
-  // It ensures that when a different note is selected, the editor's
-  // content is correctly updated after it has mounted on the client.
   useEffect(() => {
     if (editor && note) {
-      // Check if the editor's content is already the same to prevent an infinite loop
       if (editor.getHTML() !== note.content) {
         editor.commands.setContent(note.content);
       }
     }
   }, [note, editor]);
 
-
   const handleSave = async () => {
     if (!editor || !token) return;
-
     const htmlContent = editor.getHTML();
-    
-    // To prevent saving an empty note by accident
     if (htmlContent === '<p></p>') {
-        console.log("Not saving an empty note.");
+        toast.info("Note content is empty. Nothing to save.");
         return;
     }
 
     try {
-       await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/notes/${note._id}`, {
+       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/notes/${note._id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-        // We only need to send the content, as the title is managed elsewhere for this UI
         body: JSON.stringify({ content: htmlContent }),
       });
-      // In a real app, you would show a success "toast" notification here
-      router.refresh(); // Refresh the page to update the "Last Updated" timestamp
-    } catch(err) {
-      console.error("Failed to save note", err);
-      // In a real app, you would show an error "toast" notification here
+      if (!res.ok) throw new Error("Failed to save note");
+      toast.success("Note saved successfully!");
+      router.refresh();
+    } catch(err: any) {
+      toast.error(err.message);
     }
   };
 

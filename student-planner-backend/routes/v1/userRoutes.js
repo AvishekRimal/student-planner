@@ -12,7 +12,9 @@ const {
   loginUser,
   forgotPassword,
   resetPassword,
-  getMe, // <-- Import the new controller function
+  getMe, 
+  updateUserDetails,
+  updateUserPassword,
 } = require('../../controllers/userController');
 
 
@@ -65,6 +67,13 @@ router.post('/forgotpassword', forgotPassword);
 // @desc    Reset password using the token
 // @access  Public
 router.put('/resetpassword/:resettoken', resetPassword);
+router.put('/updatedetails', protect, [
+  check('username', 'Username cannot be empty').not().isEmpty()
+], validate, updateUserDetails);
 
+// @route   PUT /api/v1/users/updatepassword
+router.put('/updatepassword', protect, [
+  check('newPassword', 'New password must be at least 6 characters').isLength({ min: 6 })
+], validate, updateUserPassword);
 
 module.exports = router;

@@ -1,6 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/redux/hooks/useAuth';
 import {
@@ -14,23 +14,21 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Button } from '@/components/ui/button';
-import { Trash } from 'lucide-react';
+import { toast } from "sonner"; // <-- Import toast
 
 interface DeleteTaskAlertProps {
   taskId: string;
-  children: React.ReactNode; // The trigger button/menu item
+  children: React.ReactNode;
 }
 
 export function DeleteTaskAlert({ taskId, children }: DeleteTaskAlertProps) {
-  const [error, setError] = useState<string | null>(null);
+  // We no longer need the 'error' state
   const router = useRouter();
   const { token } = useAuth();
 
   const handleDelete = async () => {
-    setError(null);
     if (!token) {
-      setError("You are not authenticated.");
+      toast.error("You are not authenticated.");
       return;
     }
 
@@ -44,9 +42,11 @@ export function DeleteTaskAlert({ taskId, children }: DeleteTaskAlertProps) {
         throw new Error('Failed to delete the task.');
       }
       
-      router.refresh(); // Re-fetch data to update the table
+      toast.success("Task deleted successfully!");
+      router.refresh();
+
     } catch (err: any) {
-      setError(err.message);
+      toast.error(err.message);
     }
   };
 
@@ -60,9 +60,9 @@ export function DeleteTaskAlert({ taskId, children }: DeleteTaskAlertProps) {
             This action cannot be undone. This will permanently delete this task.
           </AlertDialogDescription>
         </AlertDialogHeader>
-        {error && <p className="text-sm text-destructive">{error}</p>}
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
+          {/* We bind the onClick directly here */}
           <AlertDialogAction onClick={handleDelete}>Continue</AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

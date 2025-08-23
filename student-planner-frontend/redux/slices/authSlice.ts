@@ -38,11 +38,17 @@ const authSlice = createSlice({
       state.user = null;
       state.token = null;
     },
+    updateUserSuccess(state, action: PayloadAction<{ user: User }>) {
+      if (state.user) {
+        state.user.username = action.payload.user.username;
+        state.user.email = action.payload.user.email;
+      }
+    },
   },
 });
 
 // Export the actions so we can use them in our components
-export const { loginSuccess, logout } = authSlice.actions;
+export const { loginSuccess, logout, updateUserSuccess } = authSlice.actions;
 
 // Export the reducer to be included in our main store
 export default authSlice.reducer;

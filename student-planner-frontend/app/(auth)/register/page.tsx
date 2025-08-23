@@ -52,7 +52,7 @@ export default function RegisterPage() {
   };
 
   return (
-    <Card className="mx-auto max-w-sm">
+    <Card className=" min-w-[20%]">
       <CardHeader>
         <CardTitle className="text-xl">Sign Up</CardTitle>
         <CardDescription>Enter your information to create an account</CardDescription>

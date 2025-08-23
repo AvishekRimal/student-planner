@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useState } from 'react';
@@ -6,7 +7,9 @@ import { useRouter } from 'next/navigation';
 import { useDispatch } from 'react-redux';
 import { loginSuccess } from '@/redux/slices/authSlice';
 import { setCookie } from 'cookies-next';
+import { toast } from "sonner"; // <-- Import toast
 
+// (Import UI components)
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -15,7 +18,7 @@ import { Label } from "@/components/ui/label";
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  // We no longer need the 'error' state
   const [isLoading, setIsLoading] = useState(false);
   
   const router = useRouter();
@@ -23,11 +26,9 @@ export default function LoginPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
     setIsLoading(true);
 
     try {
-      // Step 1: Make a POST request to our backend login endpoint
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/users/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -35,27 +36,17 @@ export default function LoginPage() {
       });
 
       const data = await res.json();
-
       if (!res.ok) {
-        // If the server responds with a 4xx or 5xx status, handle the error
-        throw new Error(data.message || 'Failed to login. Please check your credentials.');
+        throw new Error(data.message || 'Failed to login');
       }
       
-      // Step 2: If login is successful, dispatch the action to update Redux state
+      toast.success("Login successful! Welcome back.");
       dispatch(loginSuccess({ user: data, token: data.token }));
-
-      // Step 3: Set the token in a browser cookie for server components to access
-      setCookie('token', data.token, {
-        maxAge: 60 * 60 * 24 * 30, // Expires in 30 days
-        path: '/', // The cookie is available for all pages
-      });
-
-      // Step 4: Redirect the user to the main dashboard
+      setCookie('token', data.token, { maxAge: 60 * 60 * 24 * 30, path: '/' });
       router.push('/dashboard');
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
-      setError(err.message);
+      toast.error(err.message);
     } finally {
       setIsLoading(false);
     }
@@ -65,21 +56,13 @@ export default function LoginPage() {
     <Card className="mx-auto max-w-sm w-full">
       <CardHeader>
         <CardTitle className="text-2xl">Login</CardTitle>
-        <CardDescription>Enter your email below to login to your account</CardDescription>
+        <CardDescription>Enter your email below to login</CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="grid gap-4">
           <div className="grid gap-2">
             <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              type="email"
-              placeholder="m@example.com"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              disabled={isLoading}
-            />
+            <Input id="email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} disabled={isLoading} />
           </div>
           <div className="grid gap-2">
             <div className="flex items-center">
@@ -88,25 +71,14 @@ export default function LoginPage() {
                 Forgot your password?
               </Link>
             </div>
-            <Input 
-              id="password" 
-              type="password" 
-              required 
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              disabled={isLoading}
-            />
+            <Input id="password" type="password" required value={password} onChange={(e) => setPassword(e.target.value)} disabled={isLoading} />
           </div>
-          {error && <p className="text-sm font-medium text-destructive">{error}</p>}
           <Button type="submit" className="w-full" disabled={isLoading}>
             {isLoading ? 'Logging in...' : 'Login'}
           </Button>
         </form>
         <div className="mt-4 text-center text-sm">
-          Don&apos;t have an account?{" "}
-          <Link href="/register" className="underline">
-            Sign up
-          </Link>
+          Don&apos;t have an account? <Link href="/register" className="underline">Sign up</Link>
         </div>
       </CardContent>
     </Card>

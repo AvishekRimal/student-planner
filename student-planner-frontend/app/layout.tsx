@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import "./globals.css"; // The global stylesheet
+import "./globals.css";
 
-// Provider components
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import { ReduxProvider } from "@/components/providers/redux-provider";
-import { AuthInitializer } from "@/components/providers/AuthInitializer"; // <-- Import the new initializer
+import { AuthInitializer } from "@/components/providers/AuthInitializer";
+import { Toaster } from "@/components/ui/sonner"; // <-- Import the Toaster
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -22,25 +22,16 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
-        {/* The ReduxProvider must be on the outside so AuthInitializer can dispatch actions */}
         <ReduxProvider>
-          {/* 
-            The AuthInitializer runs on the client to check the cookie and
-            "rehydrate" the Redux store with the user's session.
-          */}
           <AuthInitializer>
-            {/* The ThemeProvider handles light/dark mode */}
             <ThemeProvider
               attribute="class"
               defaultTheme="dark"
               enableSystem
               disableTransitionOnChange
             >
-              {/* 
-                This is where the rest of your application, including your other layouts
-                and pages ((auth) and (main)), will be rendered.
-              */}
               {children}
+              <Toaster richColors /> {/* <-- Add the Toaster component here */}
             </ThemeProvider>
           </AuthInitializer>
         </ReduxProvider>
