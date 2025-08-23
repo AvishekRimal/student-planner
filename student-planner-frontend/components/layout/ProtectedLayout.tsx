@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/redux/hooks/useAuth';
 import { Sidebar } from './Sidebar';
-import { UserNav } from './UserNav'; // <-- Import the new UserNav component
+import { AppHeader } from './AppHeader'; // <-- Import our new header
 
 export default function ProtectedLayout({
   children,
@@ -20,25 +20,23 @@ export default function ProtectedLayout({
     }
   }, [isAuthenticated, router]);
 
-  // Render nothing until the auth state is confirmed to prevent content flashing
   if (!isAuthenticated) {
+    // Render nothing while the auth check is happening to prevent flashing
     return null; 
   }
 
-  // If authenticated, render the full application layout
+  // If the user is authenticated, render the full application layout
   return (
     <div className="flex h-screen overflow-hidden bg-background">
       <Sidebar />
       
-      {/* Create a main wrapper that will contain the header and the content */}
+      {/* A main wrapper for the content and header */}
       <div className="flex flex-1 flex-col overflow-y-auto overflow-x-hidden">
         
-        {/* --- NEW HEADER --- */}
-        <header className="flex h-16 items-center justify-end border-b px-4 md:px-8">
-          <UserNav />
-        </header>
+        {/* Our new, clean header component */}
+        <AppHeader />
         
-        {/* The main page content will be rendered here */}
+        {/* The main page content (Dashboard, Tasks, etc.) will be rendered here */}
         <main className="p-4 md:p-8">
           {children}
         </main>

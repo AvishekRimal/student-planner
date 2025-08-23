@@ -8,7 +8,6 @@ const navLinks = [
   { href: "/tasks", label: "Tasks", icon: CheckSquare },
   { href: "/calendar", label: "Calendar", icon: Calendar },
   { href: "/notes", label: "Notes", icon: NotebookText },
-  { href: "/progress", label: "Progress", icon: BarChartHorizontal },
 ];
 
 export function Sidebar() {
