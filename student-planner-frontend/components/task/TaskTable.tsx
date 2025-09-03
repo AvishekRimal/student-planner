@@ -15,6 +15,12 @@ import { UpdateTaskStatus } from "./UpdateTaskStatus";
 // We define and export the main Task interface here.
 // This acts as a single source of truth for the shape of a task object
 // that other components can import and use.
+export interface SubTask {
+  _id: string;
+  text: string;
+  completed: boolean;
+}
+
 export interface Task {
   _id: string;
   title: string;
@@ -23,7 +29,9 @@ export interface Task {
   category: string;
   deadline?: string; // Optional field
   completed: boolean;
+  subTasks: SubTask[];
 }
+
 
 // The props for our table component take an array of tasks to display.
 interface TaskTableProps {
@@ -83,7 +91,7 @@ export function TaskTable({ tasks }: TaskTableProps) {
                 </TableCell>
                 <TableCell className="text-right">
                   {/* The '...' dropdown menu for edit/delete actions */}
-                  <TaskActions task={task} />
+                  <TaskActions task={task} onNoteActionComplete={() => {}} />
                 </TableCell>
               </TableRow>
             ))

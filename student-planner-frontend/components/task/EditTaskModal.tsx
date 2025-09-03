@@ -7,9 +7,9 @@ import { useAuth } from "@/redux/hooks/useAuth";
 import { useForm, SubmitHandler, Controller } from "react-hook-form";
 import { format } from "date-fns";
 import { Task } from "./TaskTable";
-import { toast } from "sonner"; // <-- Import toast
-
-// (Import UI components)
+import { toast } from "sonner"; 
+import { Separator } from "@/components/ui/separator"; 
+import { SubTaskList } from "./SubTaskList";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -19,34 +19,38 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Calendar } from "@/components/ui/calendar";
 import { CalendarIcon } from "lucide-react";
 
-
 type FormInputs = {
   title: string;
   description: string;
   category: string;
-  priority: 'High' | 'Medium' | 'Low';
+  priority: "High" | "Medium" | "Low";
   deadline?: Date;
 };
 
 interface EditTaskModalProps {
   task: Task;
   children: React.ReactNode;
+  onTaskUpdated: () => void;
 }
 
 export function EditTaskModal({ task, children }: EditTaskModalProps) {
   const [isOpen, setIsOpen] = useState(false);
-  // We no longer need the 'apiError' state
   const router = useRouter();
   const { token } = useAuth();
-  
-  const { control, register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm<FormInputs>();
 
-  // Use an effect to reset the form whenever the task prop changes or modal opens
+  const {
+    control,
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors, isSubmitting },
+  } = useForm<FormInputs>();
+
   useEffect(() => {
     if (isOpen) {
       reset({
         title: task.title,
-        description: task.description || '',
+        description: task.description || "",
         category: task.category,
         priority: task.priority,
         deadline: task.deadline ? new Date(task.deadline) : undefined,
@@ -67,10 +71,10 @@ export function EditTaskModal({ task, children }: EditTaskModalProps) {
       };
 
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/tasks/${task._id}`, {
-        method: 'PUT',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(payload),
       });
@@ -79,11 +83,10 @@ export function EditTaskModal({ task, children }: EditTaskModalProps) {
         const errorData = await res.json();
         throw new Error(errorData.message || "Failed to update task");
       }
-      
+
       toast.success("Task updated successfully!");
       setIsOpen(false);
       router.refresh();
-
     } catch (err: any) {
       toast.error(err.message);
     }
@@ -92,34 +95,48 @@ export function EditTaskModal({ task, children }: EditTaskModalProps) {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <span onClick={() => setIsOpen(true)}>{children}</span>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader><DialogTitle>Edit Task</DialogTitle></DialogHeader>
+      <DialogContent className="sm:max-w-[600px]">
+        <DialogHeader>
+          <DialogTitle>Edit Task</DialogTitle>
+        </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="grid gap-4 py-4">
-             {/* Form fields are the same */}
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="title" className="text-right">Title</Label>
+              <Label htmlFor="title" className="text-right">
+                Title
+              </Label>
               <Input id="title" {...register("title", { required: "Title is required" })} className="col-span-3" />
             </div>
-             {errors.title && <p className="col-start-2 col-span-3 text-sm text-destructive">{errors.title.message}</p>}
+            {errors.title && <p className="col-start-2 col-span-3 text-sm text-destructive">{errors.title.message}</p>}
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="description" className="text-right">Description</Label>
+              <Label htmlFor="description" className="text-right">
+                Description
+              </Label>
               <Textarea id="description" {...register("description")} className="col-span-3" />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="category" className="text-right">Category</Label>
+              <Label htmlFor="category" className="text-right">
+                Category
+              </Label>
               <Input id="category" {...register("category")} className="col-span-3" />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="priority" className="text-right">Priority</Label>
+              <Label htmlFor="priority" className="text-right">
+                Priority
+              </Label>
               <select id="priority" {...register("priority")} className="col-span-3 border rounded p-2 bg-background">
-                <option value="Medium">Medium</option><option value="High">High</option><option value="Low">Low</option>
+                <option value="Medium">Medium</option>
+                <option value="High">High</option>
+                <option value="Low">Low</option>
               </select>
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="deadline" className="text-right">Deadline</Label>
+              <Label htmlFor="deadline" className="text-right">
+                Deadline
+              </Label>
               <Controller
-                control={control} name="deadline"
+                control={control}
+                name="deadline"
                 render={({ field }) => (
                   <Popover>
                     <PopoverTrigger asChild>
@@ -137,10 +154,22 @@ export function EditTaskModal({ task, children }: EditTaskModalProps) {
             </div>
           </div>
           <DialogFooter>
-            <DialogClose asChild><Button type="button" variant="secondary">Cancel</Button></DialogClose>
-            <Button type="submit" disabled={isSubmitting}>{isSubmitting ? "Saving..." : "Save Changes"}</Button>
+            <DialogClose asChild>
+              <Button type="button" variant="secondary">
+                Cancel
+              </Button>
+            </DialogClose>
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? "Saving..." : "Save Changes"}
+            </Button>
           </DialogFooter>
         </form>
+        <Separator className="my-4" />
+
+        <SubTaskList
+          taskId={task._id}
+          initialSubTasks={task.subTasks}
+        />
       </DialogContent>
     </Dialog>
   );

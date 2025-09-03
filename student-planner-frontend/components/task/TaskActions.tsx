@@ -15,9 +15,10 @@ import { Task } from "./TaskTable"; // <-- Import the Task type
 
 interface TaskActionsProps {
   task: Task;
+  onNoteActionComplete: () => void;
 }
 
-export function TaskActions({ task }: TaskActionsProps) {
+export function TaskActions({ task, onNoteActionComplete  }: TaskActionsProps) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -28,7 +29,7 @@ export function TaskActions({ task }: TaskActionsProps) {
       <DropdownMenuContent align="end">
 
         {/* --- THIS IS THE NEW PART --- */}
-        <EditTaskModal task={task}>
+        <EditTaskModal task={task} onTaskUpdated={onNoteActionComplete}>
           {/* The DropdownMenuItem is now the "trigger" for the modal */}
           <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
             <Pencil className="mr-2 h-4 w-4" />

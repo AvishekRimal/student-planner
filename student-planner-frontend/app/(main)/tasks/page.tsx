@@ -2,18 +2,18 @@ import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { Header } from "@/components/layout/Header";
 import { AddTaskModal } from '@/components/task/AddTaskModal';
-import { TaskTable } from '@/components/task/TaskTable';
+import { Task, TaskTable } from '@/components/task/TaskTable';
 
 
 // Define the Task type for our fetch function and components
-export interface Task {
-  _id: string;
-  title: string;
-  priority: 'High' | 'Medium' | 'Low';
-  category: string;
-  deadline?: string;
-  completed: boolean;
-}
+// export interface Task {
+//   _id: string;
+//   title: string;
+//   priority: 'High' | 'Medium' | 'Low';
+//   category: string;
+//   deadline?: string;
+//   completed: boolean;
+// }
 
 // A server-side function to fetch all tasks for the logged-in user
 async function getTasks(token: string): Promise<Task[]> {
