@@ -3,7 +3,8 @@ import { redirect } from 'next/navigation';
 import { Header } from "@/components/layout/Header";
 
 import { TaskCalendar } from '@/components/calendar/TaskCalendar';
-import { Task } from '../tasks/page';
+import { Task } from '@/components/task/TaskTable';
+
 
 // The server-side fetch function (same as on other pages)
 async function getTasks(token: string): Promise<Task[]> {

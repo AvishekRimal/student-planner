@@ -1,64 +1,79 @@
-/* Import the library's base CSS first */
 @import 'react-big-calendar/lib/css/react-big-calendar.css';
 
-/* Override variables and styles to match Shadcn UI */
 .rbc-calendar {
   border: none;
   font-family: inherit;
+  height: 100% !important;
 }
-
-/* Toolbar (we hide the default one since we built our own) */
 .rbc-toolbar {
   display: none;
 }
-
-/* Header row (Sunday, Monday, etc.) */
 .rbc-header {
-  border-bottom: 1px solid hsl(var(--border));
-  padding: 0.75rem 0;
-  text-transform: capitalize;
+  border: none;
+  padding: 0.75rem 0.5rem;
+  text-align: center;
   font-weight: 500;
-  color: hsl(var(--foreground));
+  color: hsl(var(--muted-foreground));
 }
-
-/* Main calendar grid lines */
-.rbc-month-view, .rbc-time-view {
+.rbc-month-view {
   border: 1px solid hsl(var(--border));
   border-radius: var(--radius);
 }
-
-.rbc-time-header, .rbc-time-content, .rbc-month-row, .rbc-day-bg {
+.rbc-month-row, .rbc-day-bg, .rbc-header {
   border-color: hsl(var(--border));
 }
-
-/* Date cells */
-.rbc-date-cell {
-  color: hsl(var(--muted-foreground));
-  padding: 4px;
+.rbc-month-row {
+  min-height: 120px;
 }
-
-.rbc-date-cell.rbc-now {
-  font-weight: 600;
+.rbc-day-bg {
+  border-left: 1px solid hsl(var(--border));
+}
+.rbc-day-bg:first-child {
+  border-left: none;
+}
+.rbc-date-cell {
+  text-align: center;
+  padding-top: 6px;
+  font-weight: 500;
+}
+a.rbc-button-link {
+    color: hsl(var(--foreground));
+}
+.rbc-off-range-bg {
+  background-color: transparent !important;
+}
+.rbc-off-range .rbc-date-cell {
+  color: hsl(var(--muted-foreground) / 0.4);
 }
 .rbc-day-bg.rbc-today {
-  background-color: hsl(var(--accent));
+  background-color: #7b86f8 !important;
 }
 
-/* Events */
+/* --- THIS IS THE MOST IMPORTANT RULE --- */
+.rbc-date-cell.rbc-now a.rbc-button-link,
+.rbc-date-cell.rbc-now a.rbc-button-link:hover,
+.rbc-date-cell.rbc-now a.rbc-button-link:visited {
+  background-color: hsl(var(--primary)) !important;
+  color: hsl(var(--primary-foreground)) !important;
+  border-radius: 9999px !important;
+  font-weight: 700 !important;
+  height: 28px;
+  width: 28px;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  padding: 0 !important;
+}
 .rbc-event {
   background-color: hsl(var(--primary));
   color: hsl(var(--primary-foreground));
+  border-radius: 4px;
+  padding: 2px 6px;
   border: none;
-  border-radius: var(--radius);
-  padding: 4px 8px;
-  font-size: 0.875rem;
+  font-size: 0.8rem;
 }
-.rbc-event:focus {
-  outline: none;
-}
-
-/* "Show More" link */
 .rbc-show-more {
   color: hsl(var(--primary));
   background-color: transparent;
+  margin-top: 4px;
 }
