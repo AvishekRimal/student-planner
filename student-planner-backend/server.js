@@ -31,7 +31,8 @@ const PORT = process.env.PORT || 5000;
 // Define the options for CORS
 const corsOptions = {
   // This must be the origin of your frontend application
-  origin: 'http://localhost:3000',
+  // origin: 'http://localhost:3000',
+  origin: process.env.FRONTEND_URL, 
   // Specify which methods are allowed
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
   // This is essential for preflight requests (sent before PUT/DELETE) to succeed
