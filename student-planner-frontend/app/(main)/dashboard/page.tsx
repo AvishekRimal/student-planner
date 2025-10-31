@@ -2,7 +2,7 @@ import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { Header } from "@/components/layout/Header";
 import { DashboardClient } from '@/components/dashboard/DashboardClient';
-import { Task } from '../tasks/page';
+import { Task } from '@/components/task/TaskTable';
 
 
 // --- Data Fetching Functions ---
