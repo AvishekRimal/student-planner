@@ -36,7 +36,7 @@ export function NoteTable({ notes }: NoteTableProps) {
                 <TableCell>{note.category}</TableCell>
                 <TableCell>{new Date(note.updatedAt).toLocaleDateString()}</TableCell>
                 <TableCell className="text-right">
-                  <NoteActions note={note} />
+                  <NoteActions note={note} onNoteActionComplete={() => {}} />
                 </TableCell>
               </TableRow>
             ))
