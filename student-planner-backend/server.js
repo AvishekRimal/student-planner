@@ -25,6 +25,9 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 
+
+app.set('trust proxy', 1);
+
 // --- SECURITY & CORE MIDDLEWARE ---
 
 // --- THIS IS THE FIX: A Robust CORS Configuration ---
