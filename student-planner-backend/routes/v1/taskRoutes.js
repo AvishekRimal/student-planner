@@ -22,7 +22,7 @@ const { validate } = require('../../middleware/validationMiddleware');
    Validation Rule Sets
 ----------------------------------------------------------- */
 
-// Rule set for CREATING a task (Title required)
+// CREATE task validation (Title required)
 const createTaskValidationRules = [
   check('title', 'Title is required and cannot be empty')
     .not()
@@ -31,15 +31,14 @@ const createTaskValidationRules = [
     .isString()
     .trim(),
 
-  // ✅ Force validation to check only in the body (avoids HTTP/2 header conflict)
+  // ✅ Force validation to only look in request body (fixes Render HTTP/2 conflict)
   check('priority', 'Priority must be High, Medium, or Low')
     .optional({ checkFalsy: true })
     .isIn(['High', 'Medium', 'Low'])
-    .bail()
     .exists({ in: ['body'] }),
 ];
 
-// Rule set for UPDATING a task (all fields optional)
+// UPDATE task validation (all fields optional)
 const updateTaskValidationRules = [
   check('title', 'Title cannot be empty')
     .optional()
@@ -55,7 +54,7 @@ const updateTaskValidationRules = [
     .exists({ in: ['body'] }),
 ];
 
-// Rule set for sub-tasks (text required)
+// Sub-task validation (text required)
 const subTaskValidationRules = [
   check('text', 'Sub-task text is required and cannot be empty')
     .not()
