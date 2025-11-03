@@ -306,13 +306,14 @@ const updateTask = asyncHandler(async (req, res) => {
     throw new Error('User not authorized');
   }
 
-  const { title, description, category, deadline, taskPriority } = req.body;
+  const { title, description, category, deadline, taskPriority  } = req.body;
 
   task.title = title ?? task.title;
   task.description = description ?? task.description;
   task.category = category ?? task.category;
   task.deadline = deadline ?? task.deadline;
   task.priority = taskPriority ?? task.priority;
+  task.completed = req.body.completed ?? task.completed;
 
   await task.save();
 
