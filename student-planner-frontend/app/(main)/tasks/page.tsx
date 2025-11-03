@@ -47,17 +47,14 @@ export default async function TasksPage() {
   const tasks = await getTasks(token);
 
   return (
-    <div>
+     <div className="p-4 md:p-8">
       <div className="flex items-center justify-between mb-8">
         <Header 
           title="Tasks"
           subtitle="Manage all your tasks in one place."
         />
-        {/* The AddTaskModal component contains the button and the dialog logic */}
         <AddTaskModal />
       </div>
-
-      {/* We pass the server-fetched tasks down to the client component as a prop */}
       <TaskTable tasks={tasks} />
     </div>
   );

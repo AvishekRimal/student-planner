@@ -16,11 +16,12 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "../ui/button";
-import { ThemeToggle } from "../ui/theme-toggle"; // Import the new ThemeToggle
+import { ThemeToggle } from "../ui/theme-toggle";
 import { LogOut, Settings } from 'lucide-react';
 import Link from "next/link";
 
-export function AppHeader() {
+// Accept 'children' as a prop
+export function AppHeader({ children }: { children?: React.ReactNode }) {
   const { user } = useAuth();
   const dispatch = useDispatch();
   const router = useRouter();
@@ -32,12 +33,18 @@ export function AppHeader() {
   };
 
   return (
-    // This is the main header bar
-    <header className="flex h-16 items-center justify-end border-b bg-background px-4 md:px-8">
+    // This is the main header bar.
+    // Changed to `justify-between` to place the mobile menu on the left
+    // and the user actions on the right.
+    <header className="flex h-16 items-center justify-between border-b bg-background px-4 md:px-8">
+      
+      {/* This is where the hamburger menu will be rendered from the parent layout */}
+      <div>{children}</div>
+
       {/* A container for our action buttons */}
-      <div className="flex items-center gap-4 p-7">
+      <div className="flex items-center gap-4">
         
-        {/* The new theme toggle button */}
+        {/* The theme toggle button */}
         <ThemeToggle />
 
         {/* The user avatar and dropdown menu */}

@@ -1,10 +1,13 @@
 "use client";
 
-import { useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/redux/hooks/useAuth';
 import { Sidebar } from './Sidebar';
-import { AppHeader } from './AppHeader'; // <-- Import our new header
+import { AppHeader } from './AppHeader';
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Menu } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export default function ProtectedLayout({
   children,
@@ -13,6 +16,7 @@ export default function ProtectedLayout({
 }) {
   const { isAuthenticated } = useAuth();
   const router = useRouter();
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -21,23 +25,40 @@ export default function ProtectedLayout({
   }, [isAuthenticated, router]);
 
   if (!isAuthenticated) {
-    // Render nothing while the auth check is happening to prevent flashing
-    return null; 
+    return null;
   }
 
-  // If the user is authenticated, render the full application layout
   return (
     <div className="flex h-screen overflow-hidden bg-background">
-      <Sidebar />
-      
-      {/* A main wrapper for the content and header */}
-      <div className="flex flex-1 flex-col overflow-y-auto overflow-x-hidden">
+      {/* Permanent sidebar for larger screens */}
+      <div className="hidden md:flex">
+        <Sidebar />
+      </div>
+
+      {/* Main content wrapper */}
+      {/* The key change is removing overflow classes from this div */}
+      <div className="flex flex-1 flex-col">
         
-        {/* Our new, clean header component */}
-        <AppHeader />
+        {/* The header is now a direct child of the non-scrolling container */}
+        <AppHeader>
+          {/* Hamburger menu for mobile */}
+          <div className="md:hidden">
+            <Sheet open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
+              <SheetTrigger asChild>
+                <Button variant="outline" size="icon">
+                  <Menu className="h-6 w-6" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="left" className="p-0">
+                <Sidebar />
+              </SheetContent>
+            </Sheet>
+          </div>
+        </AppHeader>
         
-        {/* The main page content (Dashboard, Tasks, etc.) will be rendered here */}
-        <main className="p-4 md:p-8">
+        {/* The main page content */}
+        {/* We apply overflow classes directly to `main` */}
+        <main className="flex-1 overflow-y-auto">
           {children}
         </main>
       </div>

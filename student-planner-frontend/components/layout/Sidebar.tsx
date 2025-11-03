@@ -13,7 +13,7 @@ const navLinks = [
 export function Sidebar() {
   const pathname = usePathname();
   return (
-    <aside className="w-64 flex-shrink-0 border-r border-r-border bg-background p-4 flex flex-col">
+     <aside className="w-64 flex-shrink-0 bg-background p-4 flex flex-col md:border-r md:border-r-border">
       <div className="flex items-center gap-2 px-2 py-4">
         <GraduationCap className="h-6 w-6" />
         <h1 className="text-lg font-bold">Student Planner</h1>
