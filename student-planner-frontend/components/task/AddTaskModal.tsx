@@ -21,7 +21,7 @@ type FormInputs = {
   title: string;
   description: string;
   category: string;
-  priority: 'High' | 'Medium' | 'Low'; // Renamed for clarity to match the payload
+  taskPriority: 'High' | 'Medium' | 'Low'; // Renamed for clarity to match the payload
   deadline?: Date;
 };
 
@@ -32,7 +32,7 @@ export function AddTaskModal() {
 
   const { control, register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm<FormInputs>({
     defaultValues: {
-      priority: 'Medium',
+      taskPriority: 'Medium',
       category: 'General',
       description: '',
     }
@@ -110,7 +110,7 @@ export function AddTaskModal() {
                   <Label htmlFor="priority">Priority</Label>
                    <Controller
                       control={control}
-                      name="priority"
+                      name="taskPriority"
                       render={({ field }) => (
                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                           <SelectTrigger><SelectValue placeholder="Select priority" /></SelectTrigger>
