@@ -23,7 +23,7 @@ type FormInputs = {
   title: string;
   description: string;
   category: string;
-  priority: "High" | "Medium" | "Low";
+  taskPriority: "High" | "Medium" | "Low";
   deadline?: Date;
 };
 
@@ -52,7 +52,7 @@ export function EditTaskModal({ task, children }: EditTaskModalProps) {
         title: task.title,
         description: task.description || "",
         category: task.category,
-        priority: task.priority,
+        taskPriority: task.priority,
         deadline: task.deadline ? new Date(task.deadline) : undefined,
       });
     }
@@ -121,10 +121,10 @@ export function EditTaskModal({ task, children }: EditTaskModalProps) {
               <Input id="category" {...register("category")} className="col-span-3" />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="priority" className="text-right">
+              <Label htmlFor="taskPriority" className="text-right">
                 Priority
               </Label>
-              <select id="priority" {...register("priority")} className="col-span-3 border rounded p-2 bg-background">
+              <select id="taskPriority" {...register("taskPriority")} className="col-span-3 border rounded p-2 bg-background">
                 <option value="Medium">Medium</option>
                 <option value="High">High</option>
                 <option value="Low">Low</option>

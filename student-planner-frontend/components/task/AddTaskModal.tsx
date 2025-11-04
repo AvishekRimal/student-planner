@@ -107,7 +107,7 @@ export function AddTaskModal() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Task Priority */}
                 <div className="grid gap-2">
-                  <Label htmlFor="priority">Priority</Label>
+                  <Label htmlFor="taskPriority">Priority</Label>
                    <Controller
                       control={control}
                       name="taskPriority"
